@@ -5,12 +5,16 @@ const app = express();
 app.use(express.json());
 app.use(express.static("."));
 
+
+// Проверка работы сервера
 app.get("/api/status", (req, res) => {
     res.json({
-        status: "SHOHIN AI работает"
+        status: "KMRN AI работает"
     });
 });
 
+
+// AI CHAT
 app.post("/api/chat", async (req, res) => {
 
     try {
@@ -23,8 +27,9 @@ app.post("/api/chat", async (req, res) => {
             });
         }
 
+
         const response = await fetch(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse",
             {
                 method: "POST",
 
@@ -51,51 +56,77 @@ app.post("/api/chat", async (req, res) => {
             }
         );
 
-        const data = await response.json();
-
-        console.log("Gemini response:", data);
 
         if (!response.ok) {
 
-            return res.status(500).json({
-                error: data.error?.message || "Ошибка Gemini API"
-            });
+            const errorText = await response.text();
 
-        }
-
-        const answer =
-            data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (!answer) {
+            console.error("GEMINI ERROR:", errorText);
 
             return res.status(500).json({
-                error: "Gemini не вернул ответ"
+                error: "Ошибка Gemini API"
             });
-
         }
 
-        res.json({
-            answer: answer
-        });
+
+        // Передаём поток ответа браузеру
+        res.setHeader("Content-Type", "text/event-stream");
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("Connection", "keep-alive");
+
+        const reader = response.body.getReader();
+
+        const decoder = new TextDecoder();
+
+
+        while (true) {
+
+            const { value, done } = await reader.read();
+
+            if (done) {
+                break;
+            }
+
+
+            const chunk = decoder.decode(value, {
+                stream: true
+            });
+
+
+            res.write(chunk);
+        }
+
+
+        res.end();
 
     } catch (error) {
 
         console.error("SERVER ERROR:", error);
 
-        res.status(500).json({
-            error: "Ошибка сервера"
-        });
+        if (!res.headersSent) {
+
+            res.status(500).json({
+                error: "Ошибка сервера"
+            });
+
+        } else {
+
+            res.end();
+
+        }
 
     }
 
 });
 
+
 const PORT = process.env.PORT || 3000;
+
 
 app.listen(PORT, () => {
 
     console.log(
-        `SHOHIN AI запущен на порту ${PORT}`
+        `KMRN AI запущен на порту ${PORT}`
     );
 
 });
