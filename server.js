@@ -12,9 +12,11 @@ app.use(express.static("."));
 // ========================================
 
 app.get("/api/status", (req, res) => {
+
     res.json({
         status: "KMRN AI работает"
     });
+
 });
 
 
@@ -24,88 +26,175 @@ app.get("/api/status", (req, res) => {
 
 async function askGemini(message) {
 
-    const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
-        {
-            method: "POST",
+    const maxAttempts = 3;
 
-            headers: {
-                "Content-Type": "application/json",
-                "x-goog-api-key": process.env.GEMINI_API_KEY
-            },
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
 
-            body: JSON.stringify({
+        try {
 
-                contents: [
-                    {
-                        role: "user",
-                        parts: [
+            console.log(
+                `Gemini attempt ${attempt}/${maxAttempts}`
+            );
+
+
+            const response = await fetch(
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-goog-api-key": process.env.GEMINI_API_KEY
+                    },
+
+                    body: JSON.stringify({
+
+                        contents: [
                             {
-                                text: message
+                                role: "user",
+
+                                parts: [
+                                    {
+                                        text: message
+                                    }
+                                ]
                             }
                         ]
-                    }
-                ]
 
-            })
+                    })
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            console.log(
+                "Gemini response:",
+                JSON.stringify(data)
+            );
+
+
+            // ========================================
+            // 503 / 429
+            // ========================================
+
+            if (
+                response.status === 503 ||
+                response.status === 429
+            ) {
+
+                if (attempt < maxAttempts) {
+
+                    const delay =
+                        Math.pow(2, attempt) * 1000;
+
+
+                    console.log(
+                        `Gemini временно недоступен. Повтор через ${delay} мс`
+                    );
+
+
+                    await new Promise(
+                        resolve =>
+                            setTimeout(resolve, delay)
+                    );
+
+
+                    continue;
+
+                }
+
+            }
+
+
+            // ========================================
+            // ОШИБКА GEMINI
+            // ========================================
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error?.message ||
+                    "Ошибка Gemini API"
+                );
+
+            }
+
+
+            // ========================================
+            // ПОЛУЧАЕМ ТЕКСТ
+            // ========================================
+
+            const parts =
+                data.candidates?.[0]
+                    ?.content
+                    ?.parts || [];
+
+
+            let answer = "";
+
+
+            for (const part of parts) {
+
+                if (
+                    typeof part.text === "string"
+                ) {
+
+                    answer += part.text;
+
+                }
+
+            }
+
+
+            // ========================================
+            // ПРОВЕРКА
+            // ========================================
+
+            if (answer.trim()) {
+
+                console.log(
+                    "KMRN AI ответ:",
+                    answer
+                );
+
+
+                return answer;
+
+            }
+
+
+            console.error(
+                "Gemini вернул ответ без текста:",
+                JSON.stringify(data)
+            );
+
+
+            throw new Error(
+                "Gemini не вернул текстовый ответ"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                `Gemini attempt ${attempt} error:`,
+                error.message
+            );
+
+
+            if (
+                attempt === maxAttempts
+            ) {
+
+                throw error;
+
+            }
+
         }
-    );
-
-
-    const data = await response.json();
-
-
-    console.log(
-        "Gemini response:",
-        JSON.stringify(data)
-    );
-
-
-    // ========================================
-    // ПРОВЕРКА ОШИБКИ
-    // ========================================
-
-    if (!response.ok) {
-
-        throw new Error(
-            data.error?.message ||
-            "Ошибка Gemini API"
-        );
 
     }
-
-
-    // ========================================
-    // ПОЛУЧАЕМ ТЕКСТ GEMINI
-    // ========================================
-
-    const answer =
-        data.candidates?.[0]
-            ?.content
-            ?.parts
-            ?.map(part => part.text || "")
-            ?.join("");
-
-
-    // ========================================
-    // ПРОВЕРКА ОТВЕТА
-    // ========================================
-
-    if (!answer || !answer.trim()) {
-
-        console.error(
-            "Gemini вернул данные, но текст отсутствует:",
-            JSON.stringify(data)
-        );
-
-        throw new Error(
-            "Gemini не вернул текстовый ответ"
-        );
-
-    }
-
-
-    return answer;
 
 }
 
@@ -118,13 +207,22 @@ app.post("/api/chat", async (req, res) => {
 
     try {
 
-        const message = req.body.message;
+        const message =
+            req.body?.message;
 
 
-        if (!message || !message.trim()) {
+        // Проверяем сообщение
+
+        if (
+            typeof message !== "string" ||
+            !message.trim()
+        ) {
 
             return res.status(400).json({
-                error: "Сообщение пустое"
+
+                error:
+                    "Сообщение пустое"
+
             });
 
         }
@@ -136,56 +234,21 @@ app.post("/api/chat", async (req, res) => {
         );
 
 
-        // Получаем ответ Gemini
+        // Запрашиваем Gemini
 
         const answer =
             await askGemini(message);
 
 
-        console.log(
-            "KMRN AI:",
-            answer
-        );
-
-
         // ========================================
-        // SSE
+        // ОТПРАВЛЯЕМ ОБЫЧНЫЙ JSON
         // ========================================
 
-        res.setHeader(
-            "Content-Type",
-            "text/event-stream; charset=utf-8"
-        );
+        return res.json({
 
-        res.setHeader(
-            "Cache-Control",
-            "no-cache, no-transform"
-        );
+            answer: answer
 
-        res.setHeader(
-            "Connection",
-            "keep-alive"
-        );
-
-
-        // Отправляем ответ
-
-        res.write(
-            `data: ${JSON.stringify({
-                text: answer
-            })}\n\n`
-        );
-
-
-        // Сообщаем браузеру,
-        // что ответ закончен
-
-        res.write(
-            `data: [DONE]\n\n`
-        );
-
-
-        res.end();
+        });
 
 
     } catch (error) {
@@ -196,29 +259,13 @@ app.post("/api/chat", async (req, res) => {
         );
 
 
-        if (!res.headersSent) {
+        return res.status(500).json({
 
-            return res.status(500).json({
+            error:
+                error.message ||
+                "Ошибка сервера KMRN AI"
 
-                error:
-                    error.message ||
-                    "Ошибка сервера KMRN AI"
-
-            });
-
-        }
-
-
-        res.write(
-            `data: ${JSON.stringify({
-                error:
-                    error.message ||
-                    "Ошибка KMRN AI"
-            })}\n\n`
-        );
-
-
-        res.end();
+        });
 
     }
 
