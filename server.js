@@ -11,8 +11,68 @@ app.get("/api/status", (req, res) => {
     });
 });
 
+app.post("/api/chat", async (req, res) => {
+    try {
+        const message = req.body.message;
+
+        if (!message) {
+            return res.status(400).json({
+                error: "Сообщение пустое"
+            });
+        }
+
+        const response = await fetch(
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-goog-api-key": process.env.GEMINI_API_KEY
+                },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            role: "user",
+                            parts: [
+                                {
+                                    text: message
+                                }
+                            ]
+                        }
+                    ]
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error(data);
+
+            return res.status(500).json({
+                error: "Ошибка Gemini API"
+            });
+        }
+
+        const answer =
+            data.candidates?.[0]?.content?.parts?.[0]?.text ||
+            "Не удалось получить ответ.";
+
+        res.json({
+            answer: answer
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Ошибка сервера"
+        });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log(`SHOHIN AI запущен на порту ${PORT}`);
+    console.log(`KMRN AI запущен на порту ${PORT}`);
 });
