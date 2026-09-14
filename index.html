@@ -1,138 +1,254 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KMRN AI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<title>SHOHIN AI</title>
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f7f7f8;
-            color: #222;
-        }
+<style>
 
-        .app {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+* {
+    box-sizing: border-box;
+}
 
-        header {
-            height: 60px;
-            background: white;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            align-items: center;
-            padding: 0 25px;
-            font-size: 20px;
-            font-weight: bold;
-        }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #ffffff;
+    color: #202123;
+}
 
-        .logo {
-            font-size: 21px;
-        }
+.app {
+    height: 100vh;
+    display: flex;
+}
 
-        .chat {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 30px;
-        }
+/* ЛЕВОЕ МЕНЮ */
 
-        .welcome {
-            text-align: center;
-            max-width: 700px;
-            width: 100%;
-        }
+.sidebar {
+    width: 260px;
+    background: #f7f7f8;
+    border-right: 1px solid #ddd;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
 
-        .welcome h1 {
-            font-size: 38px;
-            margin-bottom: 10px;
-        }
+.logo {
+    font-size: 21px;
+    font-weight: bold;
+    padding: 10px;
+    margin-bottom: 15px;
+}
 
-        .welcome p {
-            color: #777;
-            font-size: 17px;
-        }
+.new-chat {
+    border: 1px solid #ccc;
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    text-align: left;
+}
 
-        .input-area {
-            width: 100%;
-            max-width: 750px;
-            margin: 0 auto 30px;
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 16px;
-            padding: 10px;
-            display: flex;
-            gap: 10px;
-        }
+.new-chat:hover {
+    background: #eee;
+}
 
-        input {
-            flex: 1;
-            border: none;
-            outline: none;
-            font-size: 16px;
-            padding: 12px;
-        }
+.history {
+    margin-top: 25px;
+    color: #777;
+    font-size: 13px;
+}
 
-        button {
-            border: none;
-            border-radius: 10px;
-            padding: 0 20px;
-            background: #111;
-            color: white;
-            cursor: pointer;
-            font-size: 15px;
-        }
+.history-item {
+    margin-top: 12px;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
 
-        button:hover {
-            opacity: 0.85;
-        }
+.history-item:hover {
+    background: #e8e8e8;
+}
 
-        .answer {
-            margin-top: 25px;
-            font-size: 17px;
-        }
-    </style>
+/* ОСНОВНАЯ ОБЛАСТЬ */
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    height: 60px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    padding: 0 25px;
+    font-weight: bold;
+}
+
+.chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px 20px 130px;
+}
+
+.welcome {
+    text-align: center;
+    margin-top: 18vh;
+}
+
+.welcome h1 {
+    font-size: 34px;
+    margin-bottom: 10px;
+}
+
+.welcome p {
+    color: #777;
+}
+
+/* СООБЩЕНИЯ */
+
+.message {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 15px;
+    border-radius: 10px;
+    line-height: 1.5;
+}
+
+.user {
+    background: #f3f3f3;
+}
+
+/* ПОЛЕ ВВОДА */
+
+.input-container {
+    position: fixed;
+    bottom: 0;
+    left: 260px;
+    right: 0;
+    background: white;
+    border-top: 1px solid #eee;
+    padding: 20px;
+}
+
+.input-box {
+    max-width: 800px;
+    margin: auto;
+    display: flex;
+    border: 1px solid #ccc;
+    border-radius: 14px;
+    padding: 8px;
+    background: white;
+}
+
+.input-box input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    padding: 12px;
+}
+
+.send {
+    border: none;
+    background: #111;
+    color: white;
+    border-radius: 10px;
+    padding: 0 20px;
+    cursor: pointer;
+}
+
+.send:hover {
+    opacity: 0.8;
+}
+
+/* МОБИЛЬНАЯ ВЕРСИЯ */
+
+@media (max-width: 700px) {
+
+    .sidebar {
+        display: none;
+    }
+
+    .input-container {
+        left: 0;
+    }
+
+    .welcome h1 {
+        font-size: 27px;
+    }
+
+}
+
+</style>
 </head>
 
 <body>
 
 <div class="app">
 
-    <header>
-        <div class="logo">KMRN AI</div>
-    </header>
+    <aside class="sidebar">
 
-    <main class="chat">
+        <div class="logo">
+            SHOHIN AI
+        </div>
 
-        <div class="welcome">
+        <button class="new-chat" onclick="newChat()">
+            ＋ Новый чат
+        </button>
 
-            <h1>Чем я могу помочь?</h1>
+        <div class="history">
+            История
+        </div>
 
-            <p>
-                Ваш персональный AI-помощник
-            </p>
+        <div id="history"></div>
 
-            <div id="answer" class="answer"></div>
+    </aside>
 
-            <div class="input-area">
+
+    <main class="main">
+
+        <div class="header">
+            SHOHIN AI
+        </div>
+
+
+        <div class="chat" id="chat">
+
+            <div class="welcome" id="welcome">
+
+                <h1>Чем я могу помочь?</h1>
+
+                <p>
+                    Ваш персональный AI-помощник
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="input-container">
+
+            <div class="input-box">
 
                 <input
                     id="message"
                     type="text"
                     placeholder="Напишите сообщение..."
+                    onkeydown="handleEnter(event)"
                 >
 
-                <button onclick="sendMessage()">
-                    Отправить
+                <button
+                    class="send"
+                    onclick="sendMessage()"
+                >
+                    ↑
                 </button>
 
             </div>
@@ -143,26 +259,112 @@
 
 </div>
 
+
 <script>
+
+let chats = [];
+
 
 function sendMessage() {
 
-    const input = document.getElementById("message");
-    const answer = document.getElementById("answer");
+    const input =
+        document.getElementById("message");
 
-    const message = input.value.trim();
+    const text =
+        input.value.trim();
 
-    if (!message) {
-        return;
+    if (!text) return;
+
+
+    const welcome =
+        document.getElementById("welcome");
+
+    if (welcome) {
+        welcome.remove();
     }
 
-    answer.innerHTML =
-        "Вы написали: <b>" +
-        message +
-        "</b><br><br>" +
-        "🤖 AI пока не подключён. Следующим шагом подключим настоящую AI-модель.";
+
+    const chat =
+        document.getElementById("chat");
+
+
+    const message =
+        document.createElement("div");
+
+    message.className =
+        "message user";
+
+    message.innerText =
+        text;
+
+
+    chat.appendChild(message);
+
 
     input.value = "";
+
+    chat.scrollTop =
+        chat.scrollHeight;
+
+
+    chats.push(text);
+
+    updateHistory();
+}
+
+
+function updateHistory() {
+
+    const history =
+        document.getElementById("history");
+
+    history.innerHTML = "";
+
+    chats.forEach(function(text) {
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "history-item";
+
+        item.innerText =
+            text.substring(0, 30);
+
+        history.appendChild(item);
+
+    });
+
+}
+
+
+function newChat() {
+
+    document.getElementById("chat").innerHTML = `
+
+        <div class="welcome" id="welcome">
+
+            <h1>Чем я могу помочь?</h1>
+
+            <p>
+                Ваш персональный AI-помощник
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+function handleEnter(event) {
+
+    if (event.key === "Enter") {
+
+        sendMessage();
+
+    }
+
 }
 
 </script>
