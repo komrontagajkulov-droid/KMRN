@@ -7,7 +7,7 @@ app.use(express.static("."));
 
 app.get("/api/status", (req, res) => {
     res.json({
-        status: "SHOHIN AI работает"
+        status: "KMRN AI работает"
     });
 });
 
