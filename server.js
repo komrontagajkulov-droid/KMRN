@@ -1,4 +1,3 @@
-```javascript
 const express = require("express");
 
 const app = express();
@@ -6,9 +5,14 @@ const app = express();
 app.use(express.json());
 app.use(express.static("."));
 
+const GEMINI_MODEL = "gemini-3.8-flash";
+
+const GEMINI_URL =
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+
 
 // ========================================
-// ПРОВЕРКА СЕРВЕРА
+// STATUS
 // ========================================
 
 app.get("/api/status", (req, res) => {
@@ -21,40 +25,20 @@ app.get("/api/status", (req, res) => {
 
 
 // ========================================
-// НАСТРОЙКИ GEMINI
-// ========================================
-
-const GEMINI_MODEL = "gemini-3.8-flash";
-
-const GEMINI_URL =
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
-
-
-// ========================================
-// ЗАПРОС К GEMINI
+// GEMINI
 // ========================================
 
 async function askGemini(message) {
 
     const maxAttempts = 3;
 
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
 
-    for (
-        let attempt = 1;
-        attempt <= maxAttempts;
-        attempt++
-    ) {
+        console.log(
+            `Gemini attempt ${attempt}/${maxAttempts}`
+        );
 
         try {
-
-            console.log(
-                `Gemini attempt ${attempt}/${maxAttempts}`
-            );
-
-
-            // ====================================
-            // ОТПРАВЛЯЕМ ЗАПРОС
-            // ====================================
 
             const response = await fetch(
                 GEMINI_URL,
@@ -62,47 +46,27 @@ async function askGemini(message) {
                     method: "POST",
 
                     headers: {
-
-                        "Content-Type":
-                            "application/json",
-
-                        "x-goog-api-key":
-                            process.env.GEMINI_API_KEY
-
+                        "Content-Type": "application/json",
+                        "x-goog-api-key": process.env.GEMINI_API_KEY
                     },
 
                     body: JSON.stringify({
-
                         contents: [
-
                             {
-
                                 role: "user",
-
                                 parts: [
-
                                     {
                                         text: message
                                     }
-
                                 ]
-
                             }
-
                         ]
-
                     })
-
                 }
             );
 
 
-            // ====================================
-            // ПОЛУЧАЕМ JSON
-            // ====================================
-
-            const data =
-                await response.json();
+            const data = await response.json();
 
 
             console.log(
@@ -117,9 +81,9 @@ async function askGemini(message) {
             );
 
 
-            // ====================================
-            // ВРЕМЕННАЯ ОШИБКА
-            // ====================================
+            // ========================================
+            // ВРЕМЕННАЯ ОШИБКА GEMINI
+            // ========================================
 
             if (
                 response.status === 503 ||
@@ -128,30 +92,18 @@ async function askGemini(message) {
                 response.status >= 500
             ) {
 
-                if (
-                    attempt < maxAttempts
-                ) {
+                if (attempt < maxAttempts) {
 
                     const delay =
-                        2000 * Math.pow(
-                            2,
-                            attempt - 1
-                        );
-
+                        2000 * Math.pow(2, attempt - 1);
 
                     console.log(
-                        `Gemini временно недоступен. Повтор через ${delay} мс`
+                        `Повтор через ${delay} мс`
                     );
-
 
                     await new Promise(
-                        resolve =>
-                            setTimeout(
-                                resolve,
-                                delay
-                            )
+                        resolve => setTimeout(resolve, delay)
                     );
-
 
                     continue;
 
@@ -160,53 +112,26 @@ async function askGemini(message) {
             }
 
 
-            // ====================================
+            // ========================================
             // ОШИБКА API
-            // ====================================
+            // ========================================
 
             if (!response.ok) {
 
-                const errorMessage =
+                throw new Error(
                     data?.error?.message ||
-                    `Gemini HTTP ${response.status}`;
-
-
-                throw new Error(
-                    errorMessage
+                    `Gemini HTTP ${response.status}`
                 );
 
             }
 
 
-            // ====================================
-            // ПРОВЕРЯЕМ CANDIDATE
-            // ====================================
-
-            const candidate =
-                data?.candidates?.[0];
-
-
-            if (!candidate) {
-
-                console.error(
-                    "Gemini не вернул candidate:",
-                    JSON.stringify(data)
-                );
-
-
-                throw new Error(
-                    "Gemini не вернул candidate"
-                );
-
-            }
-
-
-            // ====================================
-            // ПОЛУЧАЕМ PARTS
-            // ====================================
+            // ========================================
+            // ПОЛУЧАЕМ ТЕКСТ
+            // ========================================
 
             const parts =
-                candidate?.content?.parts || [];
+                data?.candidates?.[0]?.content?.parts || [];
 
 
             console.log(
@@ -215,27 +140,20 @@ async function askGemini(message) {
             );
 
 
-            // ====================================
-            // ПОЛУЧАЕМ ТЕКСТ
-            // ====================================
+            let answer = "";
 
-            const textParts = parts.filter(
-                part => {
 
-                    return (
-                        typeof part?.text === "string" &&
-                        part.text.trim().length > 0 &&
-                        part.thought !== true
-                    );
+            for (const part of parts) {
+
+                if (
+                    typeof part?.text === "string"
+                ) {
+
+                    answer += part.text;
 
                 }
-            );
 
-
-            const answer =
-                textParts
-                    .map(part => part.text)
-                    .join("");
+            }
 
 
             console.log(
@@ -244,40 +162,15 @@ async function askGemini(message) {
             );
 
 
-            // ====================================
-            // ПРОВЕРКА ТЕКСТА
-            // ====================================
-
-            if (
-                typeof answer === "string" &&
-                answer.trim().length > 0
-            ) {
+            if (answer.trim()) {
 
                 return answer;
 
             }
 
 
-            // ====================================
-            // ЕСЛИ TEXT НЕ НАЙДЕН
-            // ====================================
-
-            console.error(
-                "Gemini вернул ответ, но текст не найден:"
-            );
-
-
-            console.error(
-                JSON.stringify(
-                    data,
-                    null,
-                    2
-                )
-            );
-
-
             throw new Error(
-                "Gemini не вернул текстовый ответ"
+                "Gemini действительно не вернул текст"
             );
 
 
@@ -289,11 +182,7 @@ async function askGemini(message) {
             );
 
 
-            // Последняя попытка
-
-            if (
-                attempt === maxAttempts
-            ) {
+            if (attempt === maxAttempts) {
 
                 throw error;
 
@@ -312,7 +201,7 @@ async function askGemini(message) {
 
 
 // ========================================
-// CHAT API
+// CHAT
 // ========================================
 
 app.post(
@@ -321,17 +210,9 @@ app.post(
 
         try {
 
-            // ====================================
-            // ПОЛУЧАЕМ СООБЩЕНИЕ
-            // ====================================
-
             const message =
                 req.body?.message;
 
-
-            // ====================================
-            // ПРОВЕРКА
-            // ====================================
 
             if (
                 typeof message !== "string" ||
@@ -339,10 +220,7 @@ app.post(
             ) {
 
                 return res.status(400).json({
-
-                    error:
-                        "Сообщение пустое"
-
+                    error: "Сообщение пустое"
                 });
 
             }
@@ -354,19 +232,9 @@ app.post(
             );
 
 
-            // ====================================
-            // ЗАПРАШИВАЕМ GEMINI
-            // ====================================
-
             const answer =
-                await askGemini(
-                    message
-                );
+                await askGemini(message);
 
-
-            // ====================================
-            // ЛОГ
-            // ====================================
 
             console.log(
                 "KMRN AI:",
@@ -374,20 +242,12 @@ app.post(
             );
 
 
-            // ====================================
-            // ОТВЕТ БРАУЗЕРУ
-            // ====================================
-
             return res.status(200).json({
-
                 answer: answer
-
             });
 
-        }
 
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "SERVER ERROR:",
@@ -395,16 +255,8 @@ app.post(
             );
 
 
-            // ====================================
-            // ОШИБКА
-            // ====================================
-
             return res.status(500).json({
-
-                error:
-                    error.message ||
-                    "Ошибка сервера KMRN AI"
-
+                error: error.message
             });
 
         }
@@ -414,7 +266,7 @@ app.post(
 
 
 // ========================================
-// ЗАПУСК
+// START
 // ========================================
 
 const PORT =
@@ -431,4 +283,3 @@ app.listen(
 
     }
 );
-```
