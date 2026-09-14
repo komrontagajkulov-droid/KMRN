@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMRN AI</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f7f7f8;
+            color: #222;
+        }
+
+        .app {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            height: 60px;
+            background: white;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .logo {
+            font-size: 21px;
+        }
+
+        .chat {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .welcome {
+            text-align: center;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .welcome h1 {
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+        .welcome p {
+            color: #777;
+            font-size: 17px;
+        }
+
+        .input-area {
+            width: 100%;
+            max-width: 750px;
+            margin: 0 auto 30px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 16px;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            padding: 12px;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 0 20px;
+            background: #111;
+            color: white;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        .answer {
+            margin-top: 25px;
+            font-size: 17px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <header>
+        <div class="logo">KMRN AI</div>
+    </header>
+
+    <main class="chat">
+
+        <div class="welcome">
+
+            <h1>Чем я могу помочь?</h1>
+
+            <p>
+                Ваш персональный AI-помощник
+            </p>
+
+            <div id="answer" class="answer"></div>
+
+            <div class="input-area">
+
+                <input
+                    id="message"
+                    type="text"
+                    placeholder="Напишите сообщение..."
+                >
+
+                <button onclick="sendMessage()">
+                    Отправить
+                </button>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+function sendMessage() {
+
+    const input = document.getElementById("message");
+    const answer = document.getElementById("answer");
+
+    const message = input.value.trim();
+
+    if (!message) {
+        return;
+    }
+
+    answer.innerHTML =
+        "Вы написали: <b>" +
+        message +
+        "</b><br><br>" +
+        "🤖 AI пока не подключён. Следующим шагом подключим настоящую AI-модель.";
+
+    input.value = "";
+}
+
+</script>
+
+</body>
+</html>
