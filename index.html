@@ -1,191 +1,199 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>KMRN AI</title>
+    <title>SHOHIN AI</title>
 
-<style>
+    <style>
 
-* {
-    box-sizing: border-box;
-}
+        * {
+            box-sizing: border-box;
+        }
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #ffffff;
-    color: #202123;
-}
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: white;
+            color: #202123;
+        }
 
-.app {
-    height: 100vh;
-    display: flex;
-}
+        .app {
+            height: 100vh;
+            display: flex;
+        }
 
-/* ЛЕВОЕ МЕНЮ */
+        /* ЛЕВОЕ МЕНЮ */
 
-.sidebar {
-    width: 260px;
-    background: #f7f7f8;
-    border-right: 1px solid #ddd;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-}
+        .sidebar {
+            width: 260px;
+            background: #f7f7f8;
+            border-right: 1px solid #ddd;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
 
-.logo {
-    font-size: 21px;
-    font-weight: bold;
-    padding: 10px;
-    margin-bottom: 15px;
-}
+        .logo {
+            font-size: 21px;
+            font-weight: bold;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
 
-.new-chat {
-    border: 1px solid #ccc;
-    background: white;
-    padding: 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 15px;
-    text-align: left;
-}
+        .new-chat {
+            border: 1px solid #ccc;
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            text-align: left;
+        }
 
-.new-chat:hover {
-    background: #eee;
-}
+        .new-chat:hover {
+            background: #eee;
+        }
 
-.history {
-    margin-top: 25px;
-    color: #777;
-    font-size: 13px;
-}
+        .history {
+            margin-top: 25px;
+            color: #777;
+            font-size: 13px;
+        }
 
-.history-item {
-    margin-top: 12px;
-    padding: 8px;
-    border-radius: 6px;
-    cursor: pointer;
-}
+        .history-item {
+            margin-top: 12px;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
 
-.history-item:hover {
-    background: #e8e8e8;
-}
+        .history-item:hover {
+            background: #e8e8e8;
+        }
 
-/* ОСНОВНАЯ ОБЛАСТЬ */
+        /* ОСНОВНАЯ ОБЛАСТЬ */
 
-.main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
 
-.header {
-    height: 60px;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    align-items: center;
-    padding: 0 25px;
-    font-weight: bold;
-}
+        .header {
+            height: 60px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            font-weight: bold;
+        }
 
-.chat {
-    flex: 1;
-    overflow-y: auto;
-    padding: 40px 20px 130px;
-}
+        .chat {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 20px 130px;
+        }
 
-.welcome {
-    text-align: center;
-    margin-top: 18vh;
-}
+        .welcome {
+            text-align: center;
+            margin-top: 18vh;
+        }
 
-.welcome h1 {
-    font-size: 34px;
-    margin-bottom: 10px;
-}
+        .welcome h1 {
+            font-size: 34px;
+            margin-bottom: 10px;
+        }
 
-.welcome p {
-    color: #777;
-}
+        .welcome p {
+            color: #777;
+        }
 
-/* СООБЩЕНИЯ */
+        /* СООБЩЕНИЯ */
 
-.message {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 15px;
-    border-radius: 10px;
-    line-height: 1.5;
-}
+        .message {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 15px;
+            border-radius: 10px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
 
-.user {
-    background: #f3f3f3;
-}
+        .user {
+            background: #f3f3f3;
+        }
 
-/* ПОЛЕ ВВОДА */
+        .ai {
+            background: white;
+        }
 
-.input-container {
-    position: fixed;
-    bottom: 0;
-    left: 260px;
-    right: 0;
-    background: white;
-    border-top: 1px solid #eee;
-    padding: 20px;
-}
+        /* ПОЛЕ ВВОДА */
 
-.input-box {
-    max-width: 800px;
-    margin: auto;
-    display: flex;
-    border: 1px solid #ccc;
-    border-radius: 14px;
-    padding: 8px;
-    background: white;
-}
+        .input-container {
+            position: fixed;
+            bottom: 0;
+            left: 260px;
+            right: 0;
+            background: white;
+            border-top: 1px solid #eee;
+            padding: 20px;
+        }
 
-.input-box input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-size: 16px;
-    padding: 12px;
-}
+        .input-box {
+            max-width: 800px;
+            margin: auto;
+            display: flex;
+            border: 1px solid #ccc;
+            border-radius: 14px;
+            padding: 8px;
+            background: white;
+        }
 
-.send {
-    border: none;
-    background: #111;
-    color: white;
-    border-radius: 10px;
-    padding: 0 20px;
-    cursor: pointer;
-}
+        .input-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            padding: 12px;
+        }
 
-.send:hover {
-    opacity: 0.8;
-}
+        .send {
+            border: none;
+            background: #111;
+            color: white;
+            border-radius: 10px;
+            padding: 0 20px;
+            cursor: pointer;
+            font-size: 18px;
+        }
 
-/* МОБИЛЬНАЯ ВЕРСИЯ */
+        .send:hover {
+            opacity: 0.8;
+        }
 
-@media (max-width: 700px) {
+        /* МОБИЛЬНАЯ ВЕРСИЯ */
 
-    .sidebar {
-        display: none;
-    }
+        @media (max-width: 700px) {
 
-    .input-container {
-        left: 0;
-    }
+            .sidebar {
+                display: none;
+            }
 
-    .welcome h1 {
-        font-size: 27px;
-    }
+            .input-container {
+                left: 0;
+            }
 
-}
+            .welcome h1 {
+                font-size: 27px;
+            }
 
-</style>
+        }
+
+    </style>
+
 </head>
 
 <body>
@@ -195,7 +203,7 @@ body {
     <aside class="sidebar">
 
         <div class="logo">
-            KMRN AI
+            SHOHIN AI
         </div>
 
         <button class="new-chat" onclick="newChat()">
@@ -214,7 +222,7 @@ body {
     <main class="main">
 
         <div class="header">
-            KMRN AI
+            SHOHIN AI
         </div>
 
 
@@ -265,118 +273,16 @@ body {
 let chats = [];
 
 
-function sendMessage() {
-
-    const input =
-        document.getElementById("message");
-
-    const text =
-        input.value.trim();
-
-    if (!text) return;
-
-
-    const welcome =
-        document.getElementById("welcome");
-
-    if (welcome) {
-        welcome.remove();
-    }
-
-
-    const chat =
-        document.getElementById("chat");
-
-
-    const message =
-        document.createElement("div");
-
-    message.className =
-        "message user";
-
-    message.innerText =
-        text;
-
-
-    chat.appendChild(message);
-
-
-    input.value = "";
-
-    chat.scrollTop =
-        chat.scrollHeight;
-
-
-    chats.push(text);
-
-    updateHistory();
-}
-
-
-function updateHistory() {
-
-    const history =
-        document.getElementById("history");
-
-    history.innerHTML = "";
-
-    chats.forEach(function(text) {
-
-        const item =
-            document.createElement("div");
-
-        item.className =
-            "history-item";
-
-        item.innerText =
-            text.substring(0, 30);
-
-        history.appendChild(item);
-
-    });
-
-}
-
-
-function newChat() {
-
-    document.getElementById("chat").innerHTML = `
-
-        <div class="welcome" id="welcome">
-
-            <h1>Чем я могу помочь?</h1>
-
-            <p>
-                Ваш персональный AI-помощник
-            </p>
-
-        </div>
-
-    `;
-
-}
-
-
-function handleEnter(event) {
-
-    if (event.key === "Enter") {
-
-        sendMessage();
-
-    }
-
-}
-
-<script>
-
-let chats = [];
-
 async function sendMessage() {
 
     const input = document.getElementById("message");
+
     const text = input.value.trim();
 
-    if (!text) return;
+    if (!text) {
+        return;
+    }
+
 
     const welcome = document.getElementById("welcome");
 
@@ -384,54 +290,84 @@ async function sendMessage() {
         welcome.remove();
     }
 
+
     const chat = document.getElementById("chat");
 
+
     // Сообщение пользователя
+
     const userMessage = document.createElement("div");
+
     userMessage.className = "message user";
+
     userMessage.innerText = text;
+
     chat.appendChild(userMessage);
+
 
     input.value = "";
 
+
     // Сообщение AI
+
     const aiMessage = document.createElement("div");
-    aiMessage.className = "message";
+
+    aiMessage.className = "message ai";
+
     aiMessage.innerText = "SHOHIN AI думает...";
+
     chat.appendChild(aiMessage);
 
+
     chat.scrollTop = chat.scrollHeight;
+
 
     try {
 
         const response = await fetch("/api/chat", {
+
             method: "POST",
+
             headers: {
                 "Content-Type": "application/json"
             },
+
             body: JSON.stringify({
                 message: text
             })
+
         });
+
 
         const data = await response.json();
 
+
         if (data.answer) {
+
             aiMessage.innerText = data.answer;
+
         } else {
-            aiMessage.innerText = "Ошибка: " + (data.error || "нет ответа");
+
+            aiMessage.innerText =
+                "Ошибка: " + (data.error || "AI не дал ответ.");
+
         }
+
 
     } catch (error) {
 
-        aiMessage.innerText =
-            "Не удалось подключиться к SHOHIN AI.";
-
         console.error(error);
+
+        aiMessage.innerText =
+            "Ошибка подключения к серверу SHOHIN AI.";
+
     }
 
+
     chats.push(text);
+
     updateHistory();
+
 }
 
 
@@ -440,6 +376,7 @@ function updateHistory() {
     const history = document.getElementById("history");
 
     history.innerHTML = "";
+
 
     chats.forEach(function(text) {
 
@@ -478,7 +415,9 @@ function newChat() {
 function handleEnter(event) {
 
     if (event.key === "Enter") {
+
         sendMessage();
+
     }
 
 }
@@ -486,4 +425,5 @@ function handleEnter(event) {
 </script>
 
 </body>
+
 </html>
