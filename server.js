@@ -32,7 +32,11 @@ async function askGemini(message) {
 
     const maxAttempts = 3;
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    for (
+        let attempt = 1;
+        attempt <= maxAttempts;
+        attempt++
+    ) {
 
         console.log(
             `Gemini attempt ${attempt}/${maxAttempts}`
@@ -82,7 +86,7 @@ async function askGemini(message) {
 
 
             // ========================================
-            // ВРЕМЕННАЯ ОШИБКА GEMINI
+            // TEMPORARY GEMINI ERROR
             // ========================================
 
             if (
@@ -95,25 +99,30 @@ async function askGemini(message) {
                 if (attempt < maxAttempts) {
 
                     const delay =
-                        2000 * Math.pow(2, attempt - 1);
+                        2000 * Math.pow(
+                            2,
+                            attempt - 1
+                        );
 
                     console.log(
-                        `Повтор через ${delay} мс`
+                        `Retry after ${delay} ms`
                     );
 
                     await new Promise(
-                        resolve => setTimeout(resolve, delay)
+                        resolve =>
+                            setTimeout(
+                                resolve,
+                                delay
+                            )
                     );
 
                     continue;
-
                 }
-
             }
 
 
             // ========================================
-            // ОШИБКА API
+            // API ERROR
             // ========================================
 
             if (!response.ok) {
@@ -127,7 +136,7 @@ async function askGemini(message) {
 
 
             // ========================================
-            // ПОЛУЧАЕМ ТЕКСТ
+            // GET TEXT
             // ========================================
 
             const parts =
@@ -170,9 +179,8 @@ async function askGemini(message) {
 
 
             throw new Error(
-                "Gemini действительно не вернул текст"
+                "Gemini не вернул текст"
             );
-
 
         } catch (error) {
 
@@ -182,7 +190,9 @@ async function askGemini(message) {
             );
 
 
-            if (attempt === maxAttempts) {
+            if (
+                attempt === maxAttempts
+            ) {
 
                 throw error;
 
