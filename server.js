@@ -7,12 +7,14 @@ app.use(express.static("."));
 
 app.get("/api/status", (req, res) => {
     res.json({
-        status: "KMRN AI работает"
+        status: "SHOHIN AI работает"
     });
 });
 
 app.post("/api/chat", async (req, res) => {
+
     try {
+
         const message = req.body.message;
 
         if (!message) {
@@ -22,17 +24,21 @@ app.post("/api/chat", async (req, res) => {
         }
 
         const response = await fetch(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent",
             {
                 method: "POST",
+
                 headers: {
                     "Content-Type": "application/json",
                     "x-goog-api-key": process.env.GEMINI_API_KEY
                 },
+
                 body: JSON.stringify({
+
                     contents: [
                         {
                             role: "user",
+
                             parts: [
                                 {
                                     text: message
@@ -40,39 +46,56 @@ app.post("/api/chat", async (req, res) => {
                             ]
                         }
                     ]
+
                 })
             }
         );
 
         const data = await response.json();
 
+        console.log("Gemini response:", data);
+
         if (!response.ok) {
-            console.error(data);
 
             return res.status(500).json({
-                error: "Ошибка Gemini API"
+                error: data.error?.message || "Ошибка Gemini API"
             });
+
         }
 
         const answer =
-            data.candidates?.[0]?.content?.parts?.[0]?.text ||
-            "Не удалось получить ответ.";
+            data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!answer) {
+
+            return res.status(500).json({
+                error: "Gemini не вернул ответ"
+            });
+
+        }
 
         res.json({
             answer: answer
         });
 
     } catch (error) {
-        console.error(error);
+
+        console.error("SERVER ERROR:", error);
 
         res.status(500).json({
             error: "Ошибка сервера"
         });
+
     }
+
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log(`KMRN AI запущен на порту ${PORT}`);
+
+    console.log(
+        `SHOHIN AI запущен на порту ${PORT}`
+    );
+
 });
