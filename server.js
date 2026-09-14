@@ -12,33 +12,20 @@ app.use(express.static("."));
 // ========================================
 
 app.get("/api/status", (req, res) => {
-
     res.json({
         status: "KMRN AI работает"
     });
-
 });
 
 
 // ========================================
-// МОДЕЛИ GEMINI
+// GEMINI
 // ========================================
 
-// Основная модель
-const PRIMARY_MODEL = "gemini-3.5-flash";
-
-// Резервная модель
-const BACKUP_MODEL = "gemini-3.5-flash-lite";
-
-
-// ========================================
-// ЗАПРОС К GEMINI
-// ========================================
-
-async function requestGemini(model, message) {
+async function askGemini(message) {
 
     const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
         {
             method: "POST",
 
@@ -52,7 +39,6 @@ async function requestGemini(model, message) {
                 contents: [
                     {
                         role: "user",
-
                         parts: [
                             {
                                 text: message
@@ -70,40 +56,47 @@ async function requestGemini(model, message) {
 
 
     console.log(
-        `Gemini ${model} response:`,
+        "Gemini response:",
         JSON.stringify(data)
     );
 
 
-    // Возвращаем информацию об ошибке
+    // ========================================
+    // ПРОВЕРКА ОШИБКИ
+    // ========================================
+
     if (!response.ok) {
 
-        const error = new Error(
+        throw new Error(
             data.error?.message ||
             "Ошибка Gemini API"
         );
 
-        error.status = response.status;
-
-        throw error;
     }
 
 
     // ========================================
-    // ПОЛУЧАЕМ ТЕКСТ
+    // ПОЛУЧАЕМ ТЕКСТ GEMINI
     // ========================================
 
-    const parts =
-        data.candidates?.[0]?.content?.parts || [];
+    const answer =
+        data.candidates?.[0]
+            ?.content
+            ?.parts
+            ?.map(part => part.text || "")
+            ?.join("");
 
 
-    const answer = parts
-        .filter(part => part.text)
-        .map(part => part.text)
-        .join("");
+    // ========================================
+    // ПРОВЕРКА ОТВЕТА
+    // ========================================
 
+    if (!answer || !answer.trim()) {
 
-    if (!answer.trim()) {
+        console.error(
+            "Gemini вернул данные, но текст отсутствует:",
+            JSON.stringify(data)
+        );
 
         throw new Error(
             "Gemini не вернул текстовый ответ"
@@ -113,11 +106,12 @@ async function requestGemini(model, message) {
 
 
     return answer;
+
 }
 
 
 // ========================================
-// AI CHAT
+// CHAT
 // ========================================
 
 app.post("/api/chat", async (req, res) => {
@@ -126,8 +120,6 @@ app.post("/api/chat", async (req, res) => {
 
         const message = req.body.message;
 
-
-        // Проверяем сообщение
 
         if (!message || !message.trim()) {
 
@@ -144,106 +136,20 @@ app.post("/api/chat", async (req, res) => {
         );
 
 
-        let answer = null;
+        // Получаем ответ Gemini
 
-
-        // ========================================
-        // 1. ПРОБУЕМ ОСНОВНУЮ МОДЕЛЬ
-        // ========================================
-
-        try {
-
-            console.log(
-                `Пробуем ${PRIMARY_MODEL}`
-            );
-
-
-            answer = await requestGemini(
-                PRIMARY_MODEL,
-                message
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                `${PRIMARY_MODEL} ошибка:`,
-                error.message
-            );
-
-
-            // ========================================
-            // 2. ЕСЛИ 503/429 — ПРОБУЕМ РЕЗЕРВ
-            // ========================================
-
-            if (
-                error.status === 503 ||
-                error.status === 429
-            ) {
-
-                console.log(
-                    `Переключаемся на ${BACKUP_MODEL}`
-                );
-
-
-                try {
-
-                    answer = await requestGemini(
-                        BACKUP_MODEL,
-                        message
-                    );
-
-
-                } catch (backupError) {
-
-                    console.error(
-                        `${BACKUP_MODEL} ошибка:`,
-                        backupError.message
-                    );
-
-
-                    throw backupError;
-                }
-
-
-            } else {
-
-                throw error;
-
-            }
-
-        }
-
-
-        // ========================================
-        // ПРОВЕРКА ОТВЕТА
-        // ========================================
-
-        if (!answer) {
-
-            throw new Error(
-                "Не удалось получить ответ от Gemini"
-            );
-
-        }
+        const answer =
+            await askGemini(message);
 
 
         console.log(
-            "KMRN AI ответ:",
+            "KMRN AI:",
             answer
         );
 
 
         // ========================================
-        // SSE ОТВЕТ
-        // ========================================
-        //
-        // Твой текущий index.html ожидает
-        // потоковый формат data: {...}
-        //
-        // Gemini здесь отвечает целиком,
-        // после чего мы передаём ответ
-        // браузеру через SSE.
+        // SSE
         // ========================================
 
         res.setHeader(
@@ -262,7 +168,7 @@ app.post("/api/chat", async (req, res) => {
         );
 
 
-        // Отправляем текст
+        // Отправляем ответ
 
         res.write(
             `data: ${JSON.stringify({
@@ -271,7 +177,8 @@ app.post("/api/chat", async (req, res) => {
         );
 
 
-        // Завершение потока
+        // Сообщаем браузеру,
+        // что ответ закончен
 
         res.write(
             `data: [DONE]\n\n`
@@ -289,15 +196,13 @@ app.post("/api/chat", async (req, res) => {
         );
 
 
-        // Если поток ещё не был открыт,
-        // отправляем обычную ошибку
-
         if (!res.headersSent) {
 
             return res.status(500).json({
 
                 error:
-                    "KMRN AI временно не может получить ответ. Попробуйте ещё раз."
+                    error.message ||
+                    "Ошибка сервера KMRN AI"
 
             });
 
@@ -307,7 +212,8 @@ app.post("/api/chat", async (req, res) => {
         res.write(
             `data: ${JSON.stringify({
                 error:
-                    "KMRN AI временно не может получить ответ."
+                    error.message ||
+                    "Ошибка KMRN AI"
             })}\n\n`
         );
 
@@ -320,7 +226,7 @@ app.post("/api/chat", async (req, res) => {
 
 
 // ========================================
-// ЗАПУСК СЕРВЕРА
+// ЗАПУСК
 // ========================================
 
 const PORT =
