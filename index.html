@@ -367,6 +367,122 @@ function handleEnter(event) {
 
 }
 
+<script>
+
+let chats = [];
+
+async function sendMessage() {
+
+    const input = document.getElementById("message");
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    const welcome = document.getElementById("welcome");
+
+    if (welcome) {
+        welcome.remove();
+    }
+
+    const chat = document.getElementById("chat");
+
+    // Сообщение пользователя
+    const userMessage = document.createElement("div");
+    userMessage.className = "message user";
+    userMessage.innerText = text;
+    chat.appendChild(userMessage);
+
+    input.value = "";
+
+    // Сообщение AI
+    const aiMessage = document.createElement("div");
+    aiMessage.className = "message";
+    aiMessage.innerText = "SHOHIN AI думает...";
+    chat.appendChild(aiMessage);
+
+    chat.scrollTop = chat.scrollHeight;
+
+    try {
+
+        const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: text
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.answer) {
+            aiMessage.innerText = data.answer;
+        } else {
+            aiMessage.innerText = "Ошибка: " + (data.error || "нет ответа");
+        }
+
+    } catch (error) {
+
+        aiMessage.innerText =
+            "Не удалось подключиться к SHOHIN AI.";
+
+        console.error(error);
+    }
+
+    chats.push(text);
+    updateHistory();
+}
+
+
+function updateHistory() {
+
+    const history = document.getElementById("history");
+
+    history.innerHTML = "";
+
+    chats.forEach(function(text) {
+
+        const item = document.createElement("div");
+
+        item.className = "history-item";
+
+        item.innerText = text.substring(0, 30);
+
+        history.appendChild(item);
+
+    });
+
+}
+
+
+function newChat() {
+
+    document.getElementById("chat").innerHTML = `
+
+        <div class="welcome" id="welcome">
+
+            <h1>Чем я могу помочь?</h1>
+
+            <p>
+                Ваш персональный AI-помощник
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+function handleEnter(event) {
+
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+
+}
+
 </script>
 
 </body>
