@@ -6,7 +6,7 @@ app.use(express.json());
 app.use(express.static("."));
 
 
-// Проверка работы сервера
+// Проверка сервера
 app.get("/api/status", (req, res) => {
     res.json({
         status: "KMRN AI работает"
@@ -14,7 +14,7 @@ app.get("/api/status", (req, res) => {
 });
 
 
-// AI CHAT
+// AI
 app.post("/api/chat", async (req, res) => {
 
     try {
@@ -29,7 +29,7 @@ app.post("/api/chat", async (req, res) => {
 
 
         const response = await fetch(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent",
             {
                 method: "POST",
 
@@ -43,7 +43,6 @@ app.post("/api/chat", async (req, res) => {
                     contents: [
                         {
                             role: "user",
-
                             parts: [
                                 {
                                     text: message
@@ -57,70 +56,65 @@ app.post("/api/chat", async (req, res) => {
         );
 
 
+        const data = await response.json();
+
+
+        console.log(
+            "Gemini response:",
+            JSON.stringify(data)
+        );
+
+
         if (!response.ok) {
 
-            const errorText = await response.text();
+            return res.status(500).json({
+                error:
+                    data.error?.message ||
+                    "Ошибка Gemini API"
+            });
 
-            console.error("GEMINI ERROR:", errorText);
+        }
+
+
+        const answer =
+            data.candidates?.[0]
+                ?.content?.parts?.[0]
+                ?.text;
+
+
+        if (!answer) {
 
             return res.status(500).json({
-                error: "Ошибка Gemini API"
+                error: "Gemini не вернул ответ"
             });
+
         }
 
 
-        // Передаём поток ответа браузеру
-        res.setHeader("Content-Type", "text/event-stream");
-        res.setHeader("Cache-Control", "no-cache");
-        res.setHeader("Connection", "keep-alive");
+        res.json({
+            answer: answer
+        });
 
-        const reader = response.body.getReader();
-
-        const decoder = new TextDecoder();
-
-
-        while (true) {
-
-            const { value, done } = await reader.read();
-
-            if (done) {
-                break;
-            }
-
-
-            const chunk = decoder.decode(value, {
-                stream: true
-            });
-
-
-            res.write(chunk);
-        }
-
-
-        res.end();
 
     } catch (error) {
 
-        console.error("SERVER ERROR:", error);
+        console.error(
+            "SERVER ERROR:",
+            error
+        );
 
-        if (!res.headersSent) {
 
-            res.status(500).json({
-                error: "Ошибка сервера"
-            });
-
-        } else {
-
-            res.end();
-
-        }
+        res.status(500).json({
+            error: "Ошибка сервера"
+        });
 
     }
 
 });
 
 
-const PORT = process.env.PORT || 3000;
+const PORT =
+    process.env.PORT || 3000;
 
 
 app.listen(PORT, () => {
