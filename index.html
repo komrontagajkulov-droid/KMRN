@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>SHOHIN AI</title>
+    <title>KMRN AI</title>
 
     <style>
 
@@ -16,7 +16,7 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: white;
+            background: #ffffff;
             color: #202123;
         }
 
@@ -25,7 +25,7 @@
             display: flex;
         }
 
-        /* ЛЕВОЕ МЕНЮ */
+        /* SIDEBAR */
 
         .sidebar {
             width: 260px;
@@ -64,22 +64,28 @@
         }
 
         .history-item {
-            margin-top: 12px;
-            padding: 8px;
+            margin-top: 10px;
+            padding: 9px;
             border-radius: 6px;
             cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .history-item:hover {
             background: #e8e8e8;
         }
 
-        /* ОСНОВНАЯ ОБЛАСТЬ */
+
+        /* MAIN */
 
         .main {
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
 
         .header {
@@ -97,6 +103,9 @@
             padding: 40px 20px 130px;
         }
 
+
+        /* WELCOME */
+
         .welcome {
             text-align: center;
             margin-top: 18vh;
@@ -111,15 +120,17 @@
             color: #777;
         }
 
-        /* СООБЩЕНИЯ */
+
+        /* MESSAGES */
 
         .message {
             max-width: 800px;
             margin: 20px auto;
             padding: 15px;
             border-radius: 10px;
-            line-height: 1.5;
+            line-height: 1.6;
             white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         .user {
@@ -130,7 +141,8 @@
             background: white;
         }
 
-        /* ПОЛЕ ВВОДА */
+
+        /* INPUT */
 
         .input-container {
             position: fixed;
@@ -158,6 +170,7 @@
             outline: none;
             font-size: 16px;
             padding: 12px;
+            min-width: 0;
         }
 
         .send {
@@ -174,7 +187,13 @@
             opacity: 0.8;
         }
 
-        /* МОБИЛЬНАЯ ВЕРСИЯ */
+        .send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+
+        /* MOBILE */
 
         @media (max-width: 700px) {
 
@@ -184,10 +203,24 @@
 
             .input-container {
                 left: 0;
+                padding: 10px;
+            }
+
+            .chat {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .message {
+                margin: 15px auto;
             }
 
             .welcome h1 {
                 font-size: 27px;
+            }
+
+            .header {
+                padding: 0 15px;
             }
 
         }
@@ -196,17 +229,24 @@
 
 </head>
 
+
 <body>
 
 <div class="app">
 
+
+    <!-- SIDEBAR -->
+
     <aside class="sidebar">
 
         <div class="logo">
-            SHOHIN AI
+            KMRN AI
         </div>
 
-        <button class="new-chat" onclick="newChat()">
+        <button
+            class="new-chat"
+            onclick="newChat()"
+        >
             ＋ Новый чат
         </button>
 
@@ -219,18 +259,29 @@
     </aside>
 
 
+    <!-- MAIN -->
+
     <main class="main">
 
+
         <div class="header">
-            SHOHIN AI
+            KMRN AI
         </div>
 
 
-        <div class="chat" id="chat">
+        <div
+            class="chat"
+            id="chat"
+        >
 
-            <div class="welcome" id="welcome">
+            <div
+                class="welcome"
+                id="welcome"
+            >
 
-                <h1>Чем я могу помочь?</h1>
+                <h1>
+                    Чем я могу помочь?
+                </h1>
 
                 <p>
                     Ваш персональный AI-помощник
@@ -241,6 +292,8 @@
         </div>
 
 
+        <!-- INPUT -->
+
         <div class="input-container">
 
             <div class="input-box">
@@ -249,10 +302,12 @@
                     id="message"
                     type="text"
                     placeholder="Напишите сообщение..."
+                    autocomplete="off"
                     onkeydown="handleEnter(event)"
                 >
 
                 <button
+                    id="sendButton"
                     class="send"
                     onclick="sendMessage()"
                 >
@@ -263,6 +318,7 @@
 
         </div>
 
+
     </main>
 
 </div>
@@ -270,37 +326,70 @@
 
 <script>
 
+
 let chats = [];
 
+let isSending = false;
+
+
+/* SEND MESSAGE */
 
 async function sendMessage() {
 
-    const input = document.getElementById("message");
+    if (isSending) {
+        return;
+    }
 
-    const text = input.value.trim();
+
+    const input =
+        document.getElementById("message");
+
+
+    const text =
+        input.value.trim();
+
 
     if (!text) {
         return;
     }
 
 
-    const welcome = document.getElementById("welcome");
+    isSending = true;
+
+
+    const button =
+        document.getElementById("sendButton");
+
+
+    button.disabled = true;
+
+
+    const welcome =
+        document.getElementById("welcome");
+
 
     if (welcome) {
         welcome.remove();
     }
 
 
-    const chat = document.getElementById("chat");
+    const chat =
+        document.getElementById("chat");
 
 
-    // Сообщение пользователя
+    /* USER MESSAGE */
 
-    const userMessage = document.createElement("div");
+    const userMessage =
+        document.createElement("div");
 
-    userMessage.className = "message user";
 
-    userMessage.innerText = text;
+    userMessage.className =
+        "message user";
+
+
+    userMessage.innerText =
+        text;
+
 
     chat.appendChild(userMessage);
 
@@ -308,58 +397,232 @@ async function sendMessage() {
     input.value = "";
 
 
-    // Сообщение AI
+    /* AI MESSAGE */
 
-    const aiMessage = document.createElement("div");
+    const aiMessage =
+        document.createElement("div");
 
-    aiMessage.className = "message ai";
 
-    aiMessage.innerText = "SHOHIN AI думает...";
+    aiMessage.className =
+        "message ai";
+
+
+    aiMessage.innerText =
+        "KMRN AI думает...";
+
 
     chat.appendChild(aiMessage);
 
 
-    chat.scrollTop = chat.scrollHeight;
+    chat.scrollTop =
+        chat.scrollHeight;
 
 
     try {
 
-        const response = await fetch("/api/chat", {
 
-            method: "POST",
+        const response =
+            await fetch(
+                "/api/chat",
+                {
+                    method: "POST",
 
-            headers: {
-                "Content-Type": "application/json"
-            },
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-            body: JSON.stringify({
-                message: text
-            })
-
-        });
-
-
-        const data = await response.json();
+                    body: JSON.stringify({
+                        message: text
+                    })
+                }
+            );
 
 
-        if (data.answer) {
+        if (!response.ok) {
 
-            aiMessage.innerText = data.answer;
+            const errorText =
+                await response.text();
 
-        } else {
+            console.error(
+                "Server error:",
+                errorText
+            );
 
             aiMessage.innerText =
-                "Ошибка: " + (data.error || "AI не дал ответ.");
+                "Ошибка сервера KMRN AI.";
+
+            return;
+        }
+
+
+        if (!response.body) {
+
+            aiMessage.innerText =
+                "Сервер не вернул поток данных.";
+
+            return;
+        }
+
+
+        /* READ STREAM */
+
+        const reader =
+            response.body.getReader();
+
+
+        const decoder =
+            new TextDecoder();
+
+
+        let buffer = "";
+
+        let answer = "";
+
+
+        aiMessage.innerText = "";
+
+
+        while (true) {
+
+
+            const result =
+                await reader.read();
+
+
+            if (result.done) {
+                break;
+            }
+
+
+            buffer +=
+                decoder.decode(
+                    result.value,
+                    {
+                        stream: true
+                    }
+                );
+
+
+            /*
+             * Gemini SSE contains
+             * lines beginning with:
+             * data:
+             */
+
+            const lines =
+                buffer.split("\n");
+
+
+            buffer =
+                lines.pop();
+
+
+            for (
+                const line of lines
+            ) {
+
+
+                const trimmed =
+                    line.trim();
+
+
+                if (
+                    !trimmed ||
+                    !trimmed.startsWith("data:")
+                ) {
+                    continue;
+                }
+
+
+                const jsonText =
+                    trimmed
+                        .substring(5)
+                        .trim();
+
+
+                try {
+
+
+                    const data =
+                        JSON.parse(jsonText);
+
+
+                    const parts =
+                        data.candidates?.[0]
+                            ?.content?.parts;
+
+
+                    if (parts) {
+
+
+                        for (
+                            const part of parts
+                        ) {
+
+
+                            if (
+                                part.text
+                            ) {
+
+                                answer +=
+                                    part.text;
+
+                                aiMessage.innerText =
+                                    answer;
+
+                                chat.scrollTop =
+                                    chat.scrollHeight;
+                            }
+
+                        }
+
+                    }
+
+
+                } catch (error) {
+
+                    console.log(
+                        "Waiting for complete JSON chunk..."
+                    );
+
+                }
+
+            }
+
+        }
+
+
+        if (!answer) {
+
+            aiMessage.innerText =
+                "Gemini не вернул текстовый ответ.";
 
         }
 
 
     } catch (error) {
 
-        console.error(error);
+
+        console.error(
+            "Connection error:",
+            error
+        );
+
 
         aiMessage.innerText =
-            "Ошибка подключения к серверу SHOHIN AI.";
+            "Ошибка подключения к KMRN AI.";
+
+
+    } finally {
+
+
+        isSending = false;
+
+        button.disabled = false;
+
+        input.focus();
+
 
     }
 
@@ -371,35 +634,69 @@ async function sendMessage() {
 }
 
 
+/* HISTORY */
+
 function updateHistory() {
 
-    const history = document.getElementById("history");
+
+    const history =
+        document.getElementById(
+            "history"
+        );
+
 
     history.innerHTML = "";
 
 
-    chats.forEach(function(text) {
+    chats.forEach(
+        function(text) {
 
-        const item = document.createElement("div");
 
-        item.className = "history-item";
+            const item =
+                document.createElement(
+                    "div"
+                );
 
-        item.innerText = text.substring(0, 30);
 
-        history.appendChild(item);
+            item.className =
+                "history-item";
 
-    });
+
+            item.innerText =
+                text.substring(
+                    0,
+                    30
+                );
+
+
+            history.appendChild(
+                item
+            );
+
+
+        }
+    );
 
 }
 
 
+/* NEW CHAT */
+
 function newChat() {
 
-    document.getElementById("chat").innerHTML = `
 
-        <div class="welcome" id="welcome">
+    document.getElementById(
+        "chat"
+    ).innerHTML = `
 
-            <h1>Чем я могу помочь?</h1>
+        <div
+            class="welcome"
+            id="welcome"
+        >
+
+            <h1>
+                Чем я могу помочь?
+            </h1>
 
             <p>
                 Ваш персональный AI-помощник
@@ -412,9 +709,17 @@ function newChat() {
 }
 
 
+/* ENTER */
+
 function handleEnter(event) {
 
-    if (event.key === "Enter") {
+
+    if (
+        event.key === "Enter" &&
+        !event.shiftKey
+    ) {
+
+        event.preventDefault();
 
         sendMessage();
 
@@ -422,7 +727,9 @@ function handleEnter(event) {
 
 }
 
+
 </script>
+
 
 </body>
 
