@@ -1,11 +1,18 @@
+```html
 <!DOCTYPE html>
 <html lang="ru">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>KMRN AI</title>
+
 
     <style>
 
@@ -13,214 +20,379 @@
             box-sizing: border-box;
         }
 
+
         body {
+
             margin: 0;
-            font-family: Arial, sans-serif;
+
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+
             background: #ffffff;
+
             color: #202123;
+
+            height: 100vh;
+
+            overflow: hidden;
         }
+
+
+        /* ================================
+           ОСНОВНОЙ КОНТЕЙНЕР
+        ================================= */
 
         .app {
-            height: 100vh;
+
             display: flex;
+
+            width: 100%;
+
+            height: 100vh;
         }
 
-        /* SIDEBAR */
+
+        /* ================================
+           SIDEBAR
+        ================================= */
 
         .sidebar {
+
             width: 260px;
+
             background: #f7f7f8;
-            border-right: 1px solid #ddd;
-            padding: 15px;
+
+            border-right: 1px solid #e5e5e5;
+
+            padding: 16px;
+
             display: flex;
+
             flex-direction: column;
         }
 
+
         .logo {
-            font-size: 21px;
-            font-weight: bold;
-            padding: 10px;
+
+            font-size: 22px;
+
+            font-weight: 700;
+
+            padding: 12px 10px 22px;
+
+            color: #111827;
+        }
+
+
+        .new-chat {
+
+            width: 100%;
+
+            border: 1px solid #d9d9e0;
+
+            background: white;
+
+            border-radius: 10px;
+
+            padding: 12px;
+
+            font-size: 15px;
+
+            cursor: pointer;
+
+            text-align: left;
+
             margin-bottom: 15px;
         }
 
-        .new-chat {
-            border: 1px solid #ccc;
-            background: white;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            text-align: left;
-        }
 
         .new-chat:hover {
-            background: #eee;
-        }
 
-        .history {
-            margin-top: 25px;
-            color: #777;
-            font-size: 13px;
-        }
-
-        .history-item {
-            margin-top: 10px;
-            padding: 9px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .history-item:hover {
-            background: #e8e8e8;
+            background: #eeeeef;
         }
 
 
-        /* MAIN */
+        /* ================================
+           MAIN
+        ================================= */
 
         .main {
+
             flex: 1;
+
             display: flex;
+
             flex-direction: column;
+
             min-width: 0;
+
+            height: 100vh;
         }
+
 
         .header {
+
             height: 60px;
-            border-bottom: 1px solid #ddd;
+
+            border-bottom: 1px solid #eeeeee;
+
             display: flex;
+
             align-items: center;
-            padding: 0 25px;
-            font-weight: bold;
+
+            padding: 0 24px;
+
+            font-size: 18px;
+
+            font-weight: 600;
         }
+
+
+        /* ================================
+           CHAT
+        ================================= */
 
         .chat {
+
             flex: 1;
+
             overflow-y: auto;
-            padding: 40px 20px 130px;
+
+            padding: 30px 20px 140px;
         }
 
 
-        /* WELCOME */
+        .message {
+
+            max-width: 850px;
+
+            margin: 0 auto 24px;
+
+            line-height: 1.6;
+
+            font-size: 16px;
+
+            white-space: pre-wrap;
+        }
+
+
+        .user {
+
+            background: #f4f4f4;
+
+            padding: 12px 16px;
+
+            border-radius: 14px;
+
+            width: fit-content;
+
+            max-width: 80%;
+
+            margin-left: auto;
+        }
+
+
+        .assistant {
+
+            width: 100%;
+
+            padding: 5px 0;
+        }
+
 
         .welcome {
+
+            max-width: 850px;
+
+            margin: 100px auto;
+
             text-align: center;
-            margin-top: 18vh;
         }
 
+
         .welcome h1 {
-            font-size: 34px;
+
+            font-size: 32px;
+
             margin-bottom: 10px;
         }
 
+
         .welcome p {
-            color: #777;
+
+            color: #666;
+
+            font-size: 16px;
         }
 
 
-        /* MESSAGES */
+        /* ================================
+           INPUT AREA
+        ================================= */
 
-        .message {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 15px;
-            border-radius: 10px;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
+        .input-area {
 
-        .user {
-            background: #f3f3f3;
-        }
-
-        .ai {
-            background: white;
-        }
-
-
-        /* INPUT */
-
-        .input-container {
             position: fixed;
+
             bottom: 0;
+
             left: 260px;
+
             right: 0;
-            background: white;
-            border-top: 1px solid #eee;
+
+            background: linear-gradient(
+                to top,
+                #ffffff 75%,
+                rgba(255,255,255,0)
+            );
+
             padding: 20px;
         }
 
+
         .input-box {
-            max-width: 800px;
-            margin: auto;
+
+            max-width: 850px;
+
+            margin: 0 auto;
+
             display: flex;
-            border: 1px solid #ccc;
-            border-radius: 14px;
-            padding: 8px;
-            background: white;
+
+            align-items: flex-end;
+
+            gap: 10px;
+
+            border: 1px solid #d9d9e0;
+
+            border-radius: 16px;
+
+            background: #ffffff;
+
+            padding: 10px 12px;
+
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .input-box input {
+
+        textarea {
+
             flex: 1;
+
             border: none;
+
             outline: none;
+
+            resize: none;
+
+            font-family: inherit;
+
             font-size: 16px;
-            padding: 12px;
-            min-width: 0;
+
+            min-height: 24px;
+
+            max-height: 160px;
+
+            padding: 6px;
+
         }
+
+
+        textarea::placeholder {
+
+            color: #999;
+        }
+
 
         .send {
+
+            width: 40px;
+
+            height: 40px;
+
             border: none;
-            background: #111;
-            color: white;
+
             border-radius: 10px;
-            padding: 0 20px;
+
+            background: #111827;
+
+            color: white;
+
             cursor: pointer;
+
             font-size: 18px;
         }
 
+
         .send:hover {
-            opacity: 0.8;
+
+            background: #000000;
         }
+
 
         .send:disabled {
+
             opacity: 0.5;
-            cursor: not-allowed;
+
+            cursor: default;
         }
 
 
-        /* MOBILE */
+        /* ================================
+           MOBILE
+        ================================= */
 
         @media (max-width: 700px) {
 
             .sidebar {
+
                 display: none;
             }
 
-            .input-container {
+
+            .input-area {
+
                 left: 0;
-                padding: 10px;
+
+                padding: 12px;
             }
 
-            .chat {
-                padding-left: 10px;
-                padding-right: 10px;
-            }
-
-            .message {
-                margin: 15px auto;
-            }
-
-            .welcome h1 {
-                font-size: 27px;
-            }
 
             .header {
-                padding: 0 15px;
+
+                padding: 0 16px;
+            }
+
+
+            .chat {
+
+                padding-left: 15px;
+
+                padding-right: 15px;
+
+                padding-bottom: 130px;
+            }
+
+
+            .user {
+
+                max-width: 90%;
+            }
+
+
+            .welcome {
+
+                margin-top: 80px;
+            }
+
+
+            .welcome h1 {
+
+                font-size: 26px;
             }
 
         }
@@ -232,10 +404,13 @@
 
 <body>
 
+
 <div class="app">
 
 
-    <!-- SIDEBAR -->
+    <!-- ================================
+         SIDEBAR
+    ================================= -->
 
     <aside class="sidebar">
 
@@ -243,33 +418,30 @@
             KMRN AI
         </div>
 
+
         <button
             class="new-chat"
-            onclick="newChat()"
+            id="newChat"
         >
             ＋ Новый чат
         </button>
 
-        <div class="history">
-            История
-        </div>
-
-        <div id="history"></div>
-
     </aside>
 
 
-    <!-- MAIN -->
+    <!-- ================================
+         MAIN
+    ================================= -->
 
     <main class="main">
 
 
-        <div class="header">
+        <header class="header">
             KMRN AI
-        </div>
+        </header>
 
 
-        <div
+        <section
             class="chat"
             id="chat"
         >
@@ -284,32 +456,33 @@
                 </h1>
 
                 <p>
-                    Ваш персональный AI-помощник
+                    Задайте любой вопрос KMRN AI
                 </p>
 
             </div>
 
-        </div>
+        </section>
 
 
-        <!-- INPUT -->
+        <!-- ============================
+             INPUT
+        ============================= -->
 
-        <div class="input-container">
+        <div class="input-area">
 
             <div class="input-box">
 
-                <input
-                    id="message"
-                    type="text"
-                    placeholder="Напишите сообщение..."
-                    autocomplete="off"
-                    onkeydown="handleEnter(event)"
-                >
+                <textarea
+                    id="messageInput"
+                    placeholder="Сообщить KMRN AI..."
+                    rows="1"
+                ></textarea>
+
 
                 <button
-                    id="sendButton"
                     class="send"
-                    onclick="sendMessage()"
+                    id="sendButton"
+                    title="Отправить"
                 >
                     ↑
                 </button>
@@ -327,99 +500,109 @@
 <script>
 
 
-let chats = [];
+// ========================================
+// ELEMENTS
+// ========================================
 
-let isSending = false;
+const chat =
+    document.getElementById("chat");
 
+const welcome =
+    document.getElementById("welcome");
 
-/* SEND MESSAGE */
+const input =
+    document.getElementById("messageInput");
 
-async function sendMessage() {
+const sendButton =
+    document.getElementById("sendButton");
 
-    if (isSending) {
-        return;
-    }
-
-
-    const input =
-        document.getElementById("message");
-
-
-    const text =
-        input.value.trim();
+const newChat =
+    document.getElementById("newChat");
 
 
-    if (!text) {
-        return;
-    }
+// ========================================
+// ДОБАВЛЕНИЕ СООБЩЕНИЯ
+// ========================================
 
+function addMessage(text, type) {
 
-    isSending = true;
-
-
-    const button =
-        document.getElementById("sendButton");
-
-
-    button.disabled = true;
-
-
-    const welcome =
-        document.getElementById("welcome");
-
-
-    if (welcome) {
-        welcome.remove();
-    }
-
-
-    const chat =
-        document.getElementById("chat");
-
-
-    /* USER MESSAGE */
-
-    const userMessage =
+    const message =
         document.createElement("div");
 
+    message.className =
+        `message ${type}`;
 
-    userMessage.className =
-        "message user";
-
-
-    userMessage.innerText =
+    message.textContent =
         text;
 
-
-    chat.appendChild(userMessage);
-
-
-    input.value = "";
-
-
-    /* AI MESSAGE */
-
-    const aiMessage =
-        document.createElement("div");
-
-
-    aiMessage.className =
-        "message ai";
-
-
-    aiMessage.innerText =
-        "KMRN AI думает...";
-
-
-    chat.appendChild(aiMessage);
-
+    chat.appendChild(message);
 
     chat.scrollTop =
         chat.scrollHeight;
 
+    return message;
+}
+
+
+// ========================================
+// ОТПРАВКА
+// ========================================
+
+async function sendMessage() {
+
+    const message =
+        input.value.trim();
+
+
+    if (!message) {
+        return;
+    }
+
+
+    // Убираем приветственный экран
+
+    if (welcome) {
+
+        welcome.remove();
+
+    }
+
+
+    // Сообщение пользователя
+
+    addMessage(
+        message,
+        "user"
+    );
+
+
+    // Очищаем поле
+
+    input.value = "";
+
+    input.style.height = "auto";
+
+
+    // Блокируем кнопку
+
+    sendButton.disabled = true;
+
+
+    // Создаём сообщение AI
+
+    const aiMessage =
+        addMessage(
+            "KMRN AI печатает...",
+            "assistant"
+        );
+
 
     try {
 
+
+        // ====================================
+        // ЗАПРОС К SERVER.JS
+        // ====================================
 
         const response =
             await fetch(
@@ -433,299 +616,171 @@ async function sendMessage() {
                     },
 
                     body: JSON.stringify({
-                        message: text
+                        message: message
                     })
                 }
             );
 
 
+        // Получаем JSON
+
+        const data =
+            await response.json();
+
+
+        // ====================================
+        // ОШИБКА СЕРВЕРА
+        // ====================================
+
         if (!response.ok) {
 
-            const errorText =
-                await response.text();
-
-            console.error(
-                "Server error:",
-                errorText
+            throw new Error(
+                data.error ||
+                "Ошибка сервера KMRN AI"
             );
 
-            aiMessage.innerText =
-                "Ошибка сервера KMRN AI.";
-
-            return;
         }
 
 
-        if (!response.body) {
+        // ====================================
+        // ОТВЕТ AI
+        // ====================================
 
-            aiMessage.innerText =
-                "Сервер не вернул поток данных.";
+        if (!data.answer) {
 
-            return;
-        }
-
-
-        /* READ STREAM */
-
-        const reader =
-            response.body.getReader();
-
-
-        const decoder =
-            new TextDecoder();
-
-
-        let buffer = "";
-
-        let answer = "";
-
-
-        aiMessage.innerText = "";
-
-
-        while (true) {
-
-
-            const result =
-                await reader.read();
-
-
-            if (result.done) {
-                break;
-            }
-
-
-            buffer +=
-                decoder.decode(
-                    result.value,
-                    {
-                        stream: true
-                    }
-                );
-
-
-            /*
-             * Gemini SSE contains
-             * lines beginning with:
-             * data:
-             */
-
-            const lines =
-                buffer.split("\n");
-
-
-            buffer =
-                lines.pop();
-
-
-            for (
-                const line of lines
-            ) {
-
-
-                const trimmed =
-                    line.trim();
-
-
-                if (
-                    !trimmed ||
-                    !trimmed.startsWith("data:")
-                ) {
-                    continue;
-                }
-
-
-                const jsonText =
-                    trimmed
-                        .substring(5)
-                        .trim();
-
-
-                try {
-
-
-                    const data =
-                        JSON.parse(jsonText);
-
-
-                    const parts =
-                        data.candidates?.[0]
-                            ?.content?.parts;
-
-
-                    if (parts) {
-
-
-                        for (
-                            const part of parts
-                        ) {
-
-
-                            if (
-                                part.text
-                            ) {
-
-                                answer +=
-                                    part.text;
-
-                                aiMessage.innerText =
-                                    answer;
-
-                                chat.scrollTop =
-                                    chat.scrollHeight;
-                            }
-
-                        }
-
-                    }
-
-
-                } catch (error) {
-
-                    console.log(
-                        "Waiting for complete JSON chunk..."
-                    );
-
-                }
-
-            }
+            throw new Error(
+                "KMRN AI не вернул ответ"
+            );
 
         }
 
 
-        if (!answer) {
-
-            aiMessage.innerText =
-                "Gemini не вернул текстовый ответ.";
-
-        }
+        aiMessage.textContent =
+            data.answer;
 
 
     } catch (error) {
 
 
         console.error(
-            "Connection error:",
+            "KMRN AI ERROR:",
             error
         );
 
 
-        aiMessage.innerText =
-            "Ошибка подключения к KMRN AI.";
+        aiMessage.textContent =
+            "Ошибка: " +
+            error.message;
 
 
     } finally {
 
 
-        isSending = false;
+        sendButton.disabled =
+            false;
 
-        button.disabled = false;
 
         input.focus();
 
 
+        chat.scrollTop =
+            chat.scrollHeight;
+
     }
-
-
-    chats.push(text);
-
-    updateHistory();
 
 }
 
 
-/* HISTORY */
+// ========================================
+// КНОПКА ОТПРАВИТЬ
+// ========================================
 
-function updateHistory() {
-
-
-    const history =
-        document.getElementById(
-            "history"
-        );
-
-
-    history.innerHTML = "";
+sendButton.addEventListener(
+    "click",
+    sendMessage
+);
 
 
-    chats.forEach(
-        function(text) {
+// ========================================
+// ENTER
+// ========================================
 
+input.addEventListener(
+    "keydown",
+    function(event) {
 
-            const item =
-                document.createElement(
-                    "div"
-                );
+        if (
+            event.key === "Enter" &&
+            !event.shiftKey
+        ) {
 
+            event.preventDefault();
 
-            item.className =
-                "history-item";
-
-
-            item.innerText =
-                text.substring(
-                    0,
-                    30
-                );
-
-
-            history.appendChild(
-                item
-            );
-
+            sendMessage();
 
         }
-    );
-
-}
-
-
-/* NEW CHAT */
-
-function newChat() {
-
-
-    document.getElementById(
-        "chat"
-    ).innerHTML = `
-
-        <div
-            class="welcome"
-            id="welcome"
-        >
-
-            <h1>
-                Чем я могу помочь?
-            </h1>
-
-            <p>
-                Ваш персональный AI-помощник
-            </p>
-
-        </div>
-
-    `;
-
-}
-
-
-/* ENTER */
-
-function handleEnter(event) {
-
-
-    if (
-        event.key === "Enter" &&
-        !event.shiftKey
-    ) {
-
-        event.preventDefault();
-
-        sendMessage();
 
     }
+);
 
-}
+
+// ========================================
+// АВТОВЫСОТА TEXTAREA
+// ========================================
+
+input.addEventListener(
+    "input",
+    function() {
+
+        this.style.height =
+            "auto";
+
+        this.style.height =
+            Math.min(
+                this.scrollHeight,
+                160
+            ) + "px";
+
+    }
+);
+
+
+// ========================================
+// НОВЫЙ ЧАТ
+// ========================================
+
+newChat.addEventListener(
+    "click",
+    function() {
+
+        chat.innerHTML = `
+
+            <div
+                class="welcome"
+                id="welcome"
+            >
+
+                <h1>
+                    Чем я могу помочь?
+                </h1>
+
+                <p>
+                    Задайте любой вопрос KMRN AI
+                </p>
+
+            </div>
+
+        `;
+
+    }
+);
+
+
+// ========================================
+// ФОКУС
+// ========================================
+
+input.focus();
 
 
 </script>
@@ -734,3 +789,4 @@ function handleEnter(event) {
 </body>
 
 </html>
+```
