@@ -1,3 +1,4 @@
+```javascript
 const express = require("express");
 
 const app = express();
@@ -6,15 +7,23 @@ app.use(express.json());
 app.use(express.static("."));
 
 
-// Проверка сервера
+// ========================================
+// ПРОВЕРКА СЕРВЕРА
+// ========================================
+
 app.get("/api/status", (req, res) => {
+
     res.json({
         status: "KMRN AI работает"
     });
+
 });
 
 
-// Запрос к Gemini с повторными попытками
+// ========================================
+// ЗАПРОС К GEMINI
+// ========================================
+
 async function askGemini(message) {
 
     const maxAttempts = 3;
@@ -23,7 +32,10 @@ async function askGemini(message) {
 
         try {
 
-            console.log(`Gemini attempt ${attempt}/${maxAttempts}`);
+            console.log(
+                `Gemini attempt ${attempt}/${maxAttempts}`
+            );
+
 
             const response = await fetch(
                 "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
@@ -40,6 +52,7 @@ async function askGemini(message) {
                         contents: [
                             {
                                 role: "user",
+
                                 parts: [
                                     {
                                         text: message
@@ -49,9 +62,11 @@ async function askGemini(message) {
                         ],
 
                         generationConfig: {
+
                             thinkingConfig: {
                                 thinkingLevel: "low"
                             }
+
                         }
 
                     })
@@ -68,8 +83,14 @@ async function askGemini(message) {
             );
 
 
-            // Если Gemini временно перегружен
-            if (response.status === 503 || response.status === 429) {
+            // ========================================
+            // ВРЕМЕННАЯ ПЕРЕГРУЗКА GEMINI
+            // ========================================
+
+            if (
+                response.status === 503 ||
+                response.status === 429
+            ) {
 
                 if (attempt < maxAttempts) {
 
@@ -79,15 +100,21 @@ async function askGemini(message) {
                         `Gemini временно недоступен. Повтор через ${delay} мс`
                     );
 
+
                     await new Promise(
                         resolve => setTimeout(resolve, delay)
                     );
+
 
                     continue;
                 }
 
             }
 
+
+            // ========================================
+            // ОШИБКА GEMINI
+            // ========================================
 
             if (!response.ok) {
 
@@ -99,14 +126,38 @@ async function askGemini(message) {
             }
 
 
-            const answer =
-                data.candidates?.[0]
-                    ?.content?.parts
-                    ?.map(part => part.text || "")
-                    ?.join("");
+            // ========================================
+            // ПОЛУЧАЕМ ОТВЕТ
+            // ========================================
+
+            const parts =
+                data.candidates?.[0]?.content?.parts || [];
 
 
-            if (!answer) {
+            const answer = parts
+                .filter(part => {
+
+                    return (
+                        part.text &&
+                        part.thought !== true
+                    );
+
+                })
+                .map(part => part.text)
+                .join("");
+
+
+            // ========================================
+            // ПРОВЕРКА ОТВЕТА
+            // ========================================
+
+            if (!answer.trim()) {
+
+                console.error(
+                    "Gemini не вернул текст.",
+                    JSON.stringify(data, null, 2)
+                );
+
 
                 throw new Error(
                     "Gemini не вернул текстовый ответ"
@@ -127,7 +178,9 @@ async function askGemini(message) {
 
 
             if (attempt === maxAttempts) {
+
                 throw error;
+
             }
 
         }
@@ -137,7 +190,10 @@ async function askGemini(message) {
 }
 
 
-// AI
+// ========================================
+// API CHAT
+// ========================================
+
 app.post("/api/chat", async (req, res) => {
 
     try {
@@ -145,20 +201,42 @@ app.post("/api/chat", async (req, res) => {
         const message = req.body.message;
 
 
-        if (!message) {
+        // Проверяем сообщение
+
+        if (!message || !message.trim()) {
 
             return res.status(400).json({
+
                 error: "Сообщение пустое"
+
             });
 
         }
 
 
+        console.log(
+            "Пользователь:",
+            message
+        );
+
+
+        // Получаем ответ Gemini
+
         const answer = await askGemini(message);
 
 
+        console.log(
+            "KMRN AI:",
+            answer
+        );
+
+
+        // Отправляем ответ браузеру
+
         res.json({
+
             answer: answer
+
         });
 
 
@@ -171,14 +249,20 @@ app.post("/api/chat", async (req, res) => {
 
 
         res.status(500).json({
+
             error:
                 "KMRN AI временно не может получить ответ. Попробуйте ещё раз."
+
         });
 
     }
 
 });
 
+
+// ========================================
+// ЗАПУСК СЕРВЕРА
+// ========================================
 
 const PORT =
     process.env.PORT || 3000;
@@ -191,3 +275,4 @@ app.listen(PORT, () => {
     );
 
 });
+```
